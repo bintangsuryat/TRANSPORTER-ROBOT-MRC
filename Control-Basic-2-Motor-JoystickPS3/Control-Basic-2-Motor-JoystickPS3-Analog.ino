@@ -122,13 +122,14 @@ void loop() {
         else if (ly > 0 && lx > 0)  action = "MUNDUR BELOK KANAN";
     }
 
-    if (action != lastAction) {
-        Serial.println("----------------------------------------");
-        Serial.println("[GERAK] >> " + action);
-        Serial.println("[JOYSTICK] LY: " + String(ly) + " | LX: " + String(lx));
-        Serial.println("[PWM]     L: " + String(leftSpeed) + " | R: " + String(rightSpeed));
-        lastAction = action;
-    }
+    // if (action != lastAction) {
+    //     Serial.println("----------------------------------------");
+    //     Serial.println("[GERAK] >> " + action);
+    //     Serial.println("[JOYSTICK] LY: " + String(ly) + " | LX: " + String(lx));
+    //     Serial.println("[PWM]     L: " + String(leftSpeed) + " | R: " + String(rightSpeed));
+    //     lastAction = action;
+    // }
+    Serial.println("[GERAK] >> " + action + " | LY: " + String(ly) + " | LX: " + String(lx) + " | L: " + String(leftSpeed) + " | R: " + String(rightSpeed));
 
     delay(50);
 }
