@@ -5,160 +5,152 @@
 #define MOTOR_LEFT_IN1 25
 #define MOTOR_LEFT_IN2 26
 #define MOTOR_LEFT_EN 27
-
 // Motor Kanan
 #define MOTOR_RIGHT_IN1 32
 #define MOTOR_RIGHT_IN2 33
 #define MOTOR_RIGHT_EN 34
 
 // ===== PWM PARAMETER =====
-#define PWM_CHANNEL_LEFT 0
-#define PWM_CHANNEL_RIGHT 1
-#define PWM_FREQUENCY 5000
-#define PWM_RESOLUTION 8
 #define MAX_SPEED 255
 
-void onConnect()
-{
-    Serial.println("PS3 Controller Connected!");
+String lastAction = "";
+
+void onConnect() {
+    Serial.println("========================================");
+    Serial.println("  PS3 Controller Terhubung!");
+    Serial.println("  MAC: " + String(Ps3.getAddress()));
+    Serial.println("  Siap digunakan.");
+    Serial.println("========================================");
 }
 
-void setup()
-{
+void onDisconnect() {
+    Serial.println("========================================");
+    Serial.println("  PS3 Controller Terputus!");
+    Serial.println("========================================");
+}
+
+void setup() {
     Serial.begin(115200);
-    
+    Serial.println("========================================");
+    Serial.println("  Robot Car - PS3 Controller");
+    Serial.println("  Inisialisasi sistem...");
+    Serial.println("========================================");
+
     // ===== SETUP PIN MOTOR =====
-    // Motor Kiri
     pinMode(MOTOR_LEFT_IN1, OUTPUT);
     pinMode(MOTOR_LEFT_IN2, OUTPUT);
     pinMode(MOTOR_LEFT_EN, OUTPUT);
-    
-    // Motor Kanan
+    Serial.println("[MOTOR] Pin Motor Kiri  -> IN1:25 | IN2:26 | EN:27");
+
     pinMode(MOTOR_RIGHT_IN1, OUTPUT);
     pinMode(MOTOR_RIGHT_IN2, OUTPUT);
     pinMode(MOTOR_RIGHT_EN, OUTPUT);
-    
-    // ===== SETUP PWM =====
-    ledcSetup(PWM_CHANNEL_LEFT, PWM_FREQUENCY, PWM_RESOLUTION);
-    ledcSetup(PWM_CHANNEL_RIGHT, PWM_FREQUENCY, PWM_RESOLUTION);
-    ledcAttachPin(MOTOR_LEFT_EN, PWM_CHANNEL_LEFT);
-    ledcAttachPin(MOTOR_RIGHT_EN, PWM_CHANNEL_RIGHT);
-    
+    Serial.println("[MOTOR] Pin Motor Kanan -> IN1:32 | IN2:33 | EN:34");
+
+    stopAllMotors();
+    Serial.println("[MOTOR] Semua motor OFF (default)");
+
     // ===== SETUP PS3 CONTROLLER =====
     Ps3.attachOnConnect(onConnect);
     Ps3.begin("00:00:00:00:00:02");
-    Serial.println("Ready - Waiting for PS3 Controller Connection...");
+    Serial.println("[PS3]  Bluetooth aktif. MAC: 00:00:00:00:00:02");
+    Serial.println("[PS3]  Menunggu koneksi controller...");
+    Serial.println("========================================");
 }
 
-void loop()
-{
-    if(!Ps3.isConnected()) {
+void loop() {
+    if (!Ps3.isConnected()) {
         stopAllMotors();
         return;
     }
 
     // ===== KONTROL MOTOR MENGGUNAKAN D-PAD =====
-    // UP = Maju
-    if(Ps3.data.button.up)
-    {
-        moveForward();
-        Serial.println("Maju");
+    if (Ps3.data.button.up) {
+        if (lastAction != "MAJU") {
+            moveForward();
+            Serial.println("[GERAK] >> MAJU  | L:" + String(MAX_SPEED) + " R:" + String(MAX_SPEED));
+            lastAction = "MAJU";
+        }
     }
-    // DOWN = Mundur
-    else if(Ps3.data.button.down)
-    {
-        moveBackward();
-        Serial.println("Mundur");
+    else if (Ps3.data.button.down) {
+        if (lastAction != "MUNDUR") {
+            moveBackward();
+            Serial.println("[GERAK] >> MUNDUR | L:" + String(MAX_SPEED) + " R:" + String(MAX_SPEED));
+            lastAction = "MUNDUR";
+        }
     }
-    // LEFT = Belok Kiri
-    else if(Ps3.data.button.left)
-    {
-        turnLeft();
-        Serial.println("Belok Kiri");
+    else if (Ps3.data.button.left) {
+        if (lastAction != "BELOK KIRI") {
+            turnLeft();
+            Serial.println("[GERAK] >> BELOK KIRI  | L:" + String(MAX_SPEED/2) + " R:" + String(MAX_SPEED));
+            lastAction = "BELOK KIRI";
+        }
     }
-    // RIGHT = Belok Kanan
-    else if(Ps3.data.button.right)
-    {
-        turnRight();
-        Serial.println("Belok Kanan");
+    else if (Ps3.data.button.right) {
+        if (lastAction != "BELOK KANAN") {
+            turnRight();
+            Serial.println("[GERAK] >> BELOK KANAN | L:" + String(MAX_SPEED) + " R:" + String(MAX_SPEED/2));
+            lastAction = "BELOK KANAN";
+        }
     }
-    // Tidak ada tombol ditekan = Berhenti
-    else
-    {
-        stopAllMotors();
+    else {
+        if (lastAction != "BERHENTI") {
+            stopAllMotors();
+            Serial.println("[GERAK] >> BERHENTI | L:0 R:0");
+            lastAction = "BERHENTI";
+        }
     }
 
     delay(50);
 }
 
 // ===== FUNGSI KONTROL MOTOR =====
-
-// Maju - Kedua motor maju
-void moveForward()
-{
-    // Motor Kiri
+void moveForward() {
     digitalWrite(MOTOR_LEFT_IN1, HIGH);
     digitalWrite(MOTOR_LEFT_IN2, LOW);
-    ledcWrite(PWM_CHANNEL_LEFT, MAX_SPEED);
-    
-    // Motor Kanan
+    analogWrite(MOTOR_LEFT_EN, MAX_SPEED);
+
     digitalWrite(MOTOR_RIGHT_IN1, HIGH);
     digitalWrite(MOTOR_RIGHT_IN2, LOW);
-    ledcWrite(PWM_CHANNEL_RIGHT, MAX_SPEED);
+    analogWrite(MOTOR_RIGHT_EN, MAX_SPEED);
 }
 
-// Mundur - Kedua motor mundur
-void moveBackward()
-{
-    // Motor Kiri
+void moveBackward() {
     digitalWrite(MOTOR_LEFT_IN1, LOW);
     digitalWrite(MOTOR_LEFT_IN2, HIGH);
-    ledcWrite(PWM_CHANNEL_LEFT, MAX_SPEED);
-    
-    // Motor Kanan
+    analogWrite(MOTOR_LEFT_EN, MAX_SPEED);
+
     digitalWrite(MOTOR_RIGHT_IN1, LOW);
     digitalWrite(MOTOR_RIGHT_IN2, HIGH);
-    ledcWrite(PWM_CHANNEL_RIGHT, MAX_SPEED);
+    analogWrite(MOTOR_RIGHT_EN, MAX_SPEED);
 }
 
-// Belok Kiri - Motor kiri lambat, motor kanan cepat
-void turnLeft()
-{
-    // Motor Kiri (lambat)
+void turnLeft() {
     digitalWrite(MOTOR_LEFT_IN1, HIGH);
     digitalWrite(MOTOR_LEFT_IN2, LOW);
-    ledcWrite(PWM_CHANNEL_LEFT, MAX_SPEED / 2);
-    
-    // Motor Kanan (cepat)
+    analogWrite(MOTOR_LEFT_EN, MAX_SPEED / 2);
+
     digitalWrite(MOTOR_RIGHT_IN1, HIGH);
     digitalWrite(MOTOR_RIGHT_IN2, LOW);
-    ledcWrite(PWM_CHANNEL_RIGHT, MAX_SPEED);
+    analogWrite(MOTOR_RIGHT_EN, MAX_SPEED);
 }
 
-// Belok Kanan - Motor kanan lambat, motor kiri cepat
-void turnRight()
-{
-    // Motor Kiri (cepat)
+void turnRight() {
     digitalWrite(MOTOR_LEFT_IN1, HIGH);
     digitalWrite(MOTOR_LEFT_IN2, LOW);
-    ledcWrite(PWM_CHANNEL_LEFT, MAX_SPEED);
-    
-    // Motor Kanan (lambat)
+    analogWrite(MOTOR_LEFT_EN, MAX_SPEED);
+
     digitalWrite(MOTOR_RIGHT_IN1, HIGH);
     digitalWrite(MOTOR_RIGHT_IN2, LOW);
-    ledcWrite(PWM_CHANNEL_RIGHT, MAX_SPEED / 2);
+    analogWrite(MOTOR_RIGHT_EN, MAX_SPEED / 2);
 }
 
-// Berhenti - Semua motor mati
-void stopAllMotors()
-{
-    // Motor Kiri
+void stopAllMotors() {
     digitalWrite(MOTOR_LEFT_IN1, LOW);
     digitalWrite(MOTOR_LEFT_IN2, LOW);
-    ledcWrite(PWM_CHANNEL_LEFT, 0);
-    
-    // Motor Kanan
+    analogWrite(MOTOR_LEFT_EN, 0);
+
     digitalWrite(MOTOR_RIGHT_IN1, LOW);
     digitalWrite(MOTOR_RIGHT_IN2, LOW);
-    ledcWrite(PWM_CHANNEL_RIGHT, 0);
+    analogWrite(MOTOR_RIGHT_EN, 0);
 }
