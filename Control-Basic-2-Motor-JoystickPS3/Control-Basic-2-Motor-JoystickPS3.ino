@@ -2,16 +2,16 @@
 
 // ===== PIN KONFIGURASI L298N =====
 // Motor Kiri
-#define MOTOR_LEFT_IN1 25
-#define MOTOR_LEFT_IN2 26
-#define MOTOR_LEFT_EN 27
+#define MOTOR_LEFT_IN1 26
+#define MOTOR_LEFT_IN2 27
+#define MOTOR_LEFT_EN 28
 // Motor Kanan
-#define MOTOR_RIGHT_IN1 32
-#define MOTOR_RIGHT_IN2 33
+#define MOTOR_RIGHT_IN1 12
+#define MOTOR_RIGHT_IN2 13
 #define MOTOR_RIGHT_EN 34
 
 // ===== PWM PARAMETER =====
-#define MAX_SPEED 255
+#define MAX_SPEED 100
 
 String lastAction = "";
 
@@ -66,91 +66,76 @@ void loop() {
 
     // ===== KONTROL MOTOR MENGGUNAKAN D-PAD =====
     if (Ps3.data.button.up) {
-        if (lastAction != "MAJU") {
             moveForward();
             Serial.println("[GERAK] >> MAJU  | L:" + String(MAX_SPEED) + " R:" + String(MAX_SPEED));
-            lastAction = "MAJU";
-        }
     }
     else if (Ps3.data.button.down) {
-        if (lastAction != "MUNDUR") {
             moveBackward();
             Serial.println("[GERAK] >> MUNDUR | L:" + String(MAX_SPEED) + " R:" + String(MAX_SPEED));
-            lastAction = "MUNDUR";
-        }
     }
     else if (Ps3.data.button.left) {
-        if (lastAction != "BELOK KIRI") {
             turnLeft();
             Serial.println("[GERAK] >> BELOK KIRI  | L:" + String(MAX_SPEED/2) + " R:" + String(MAX_SPEED));
-            lastAction = "BELOK KIRI";
-        }
     }
     else if (Ps3.data.button.right) {
-        if (lastAction != "BELOK KANAN") {
             turnRight();
             Serial.println("[GERAK] >> BELOK KANAN | L:" + String(MAX_SPEED) + " R:" + String(MAX_SPEED/2));
-            lastAction = "BELOK KANAN";
-        }
+
     }
     else {
-        if (lastAction != "BERHENTI") {
             stopAllMotors();
             Serial.println("[GERAK] >> BERHENTI | L:0 R:0");
-            lastAction = "BERHENTI";
-        }
     }
 
-    delay(50);
 }
 
 // ===== FUNGSI KONTROL MOTOR =====
 void moveForward() {
-    digitalWrite(MOTOR_LEFT_IN1, HIGH);
-    digitalWrite(MOTOR_LEFT_IN2, LOW);
-    analogWrite(MOTOR_LEFT_EN, MAX_SPEED);
-
-    digitalWrite(MOTOR_RIGHT_IN1, HIGH);
-    digitalWrite(MOTOR_RIGHT_IN2, LOW);
-    analogWrite(MOTOR_RIGHT_EN, MAX_SPEED);
-}
-
-void moveBackward() {
     digitalWrite(MOTOR_LEFT_IN1, LOW);
     digitalWrite(MOTOR_LEFT_IN2, HIGH);
-    analogWrite(MOTOR_LEFT_EN, MAX_SPEED);
+//    analogWrite(MOTOR_LEFT_EN, MAX_SPEED);
 
     digitalWrite(MOTOR_RIGHT_IN1, LOW);
     digitalWrite(MOTOR_RIGHT_IN2, HIGH);
-    analogWrite(MOTOR_RIGHT_EN, MAX_SPEED);
+//    analogWrite(MOTOR_RIGHT_EN, MAX_SPEED);
 }
 
-void turnLeft() {
+void moveBackward() {
     digitalWrite(MOTOR_LEFT_IN1, HIGH);
     digitalWrite(MOTOR_LEFT_IN2, LOW);
-    analogWrite(MOTOR_LEFT_EN, MAX_SPEED / 2);
+//    analogWrite(MOTOR_LEFT_EN, MAX_SPEED / 2);
 
     digitalWrite(MOTOR_RIGHT_IN1, HIGH);
     digitalWrite(MOTOR_RIGHT_IN2, LOW);
-    analogWrite(MOTOR_RIGHT_EN, MAX_SPEED);
+//    analogWrite(MOTOR_RIGHT_EN, MAX_SPEED);
+}
+
+void turnLeft() {
+    digitalWrite(MOTOR_LEFT_IN1, LOW);
+    digitalWrite(MOTOR_LEFT_IN2, HIGH);
+//    analogWrite(MOTOR_LEFT_EN, MAX_SPEED);
+
+    digitalWrite(MOTOR_RIGHT_IN1, LOW);
+    digitalWrite(MOTOR_RIGHT_IN2, HIGH);
+//    analogWrite(MOTOR_RIGHT_EN, MAX_SPEED);
 }
 
 void turnRight() {
     digitalWrite(MOTOR_LEFT_IN1, HIGH);
     digitalWrite(MOTOR_LEFT_IN2, LOW);
-    analogWrite(MOTOR_LEFT_EN, MAX_SPEED);
+//    analogWrite(MOTOR_LEFT_EN, MAX_SPEED);
 
     digitalWrite(MOTOR_RIGHT_IN1, HIGH);
     digitalWrite(MOTOR_RIGHT_IN2, LOW);
-    analogWrite(MOTOR_RIGHT_EN, MAX_SPEED / 2);
+//    analogWrite(MOTOR_RIGHT_EN, MAX_SPEED);
 }
 
 void stopAllMotors() {
     digitalWrite(MOTOR_LEFT_IN1, LOW);
     digitalWrite(MOTOR_LEFT_IN2, LOW);
-    analogWrite(MOTOR_LEFT_EN, 0);
+//    analogWrite(MOTOR_LEFT_EN, 0);
 
     digitalWrite(MOTOR_RIGHT_IN1, LOW);
     digitalWrite(MOTOR_RIGHT_IN2, LOW);
-    analogWrite(MOTOR_RIGHT_EN, 0);
+//    analogWrite(MOTOR_RIGHT_EN, 0);
 }
